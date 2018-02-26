@@ -1,0 +1,1 @@
+A simple android application to demonstrate how to use Tesseract to perform OCR. Tamil, english languages data added. 
