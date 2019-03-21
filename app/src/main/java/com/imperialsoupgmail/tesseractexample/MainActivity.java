@@ -29,11 +29,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //init image
-        image = BitmapFactory.decodeResource(getResources(), R.drawable.img_tamil);
+        image = BitmapFactory.decodeResource(getResources(), R.drawable.img_tamil3);
 
-        //initialize Tesseract API
-//        String language = "eng";
         String language = "tam";
         datapath = getFilesDir()+ "/tesseract/";
         mTess = new TessBaseAPI();
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         String OCRresult = null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
-        Toast.makeText(getBaseContext(),OCRresult, Toast.LENGTH_SHORT).show();
+         Toast.makeText(getBaseContext(),OCRresult, Toast.LENGTH_SHORT).show();
         TextView OCRTextView = (TextView) findViewById(R.id.OCRTextView);
         OCRTextView.setText(OCRresult);
     }
@@ -57,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
                 copyFiles();
         }
         if(dir.exists()) {
-//            String datafilepath = datapath+ "/tessdata/eng.traineddata";
             String datafilepath = datapath+ "/tessdata/tam.traineddata";
             File datafile = new File(datafilepath);
 

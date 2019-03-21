@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OCR Tamil</string>
+    <string name="app_name">Tamil Interpreter</string>
     <string-array name="photo_dialog_options">
         <item>Pick a Photo</item>
         <item>Take a Photo</item>
