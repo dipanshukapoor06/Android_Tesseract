@@ -1,11 +1,16 @@
 package com.imperialsoupgmail.tesseractexample;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Camera;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,11 +28,19 @@ public class MainActivity extends AppCompatActivity {
     Bitmap image;
     private TessBaseAPI mTess;
     String datapath = "";
+    Camera camera;
+    FrameLayout frameLayout;
+    ShowCamera showCamera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        frameLayout = (FrameLayout)findViewById(R.id.frameLayout);
+        camera = Camera.open();
+        showCamera = new ShowCamera(this,camera);
+        frameLayout.addView(showCamera);
 
         image = BitmapFactory.decodeResource(getResources(), R.drawable.img_tamil3);
 
@@ -40,7 +53,54 @@ public class MainActivity extends AppCompatActivity {
         mTess.init(datapath, language);
     }
 
+    Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            File picture_file = getOutputMediaFile();
+
+            if(picture_file == null) {
+                return;
+            }
+            else {
+                try {
+                    FileOutputStream fos = new FileOutputStream(picture_file);
+                    fos.write(data);
+                    fos.close();
+
+                    camera.startPreview();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+    private File getOutputMediaFile() {
+        String state = Environment.getExternalStorageState();
+        if(!state.equals(Environment.MEDIA_MOUNTED)) {
+            return null;
+        }
+        else{
+            File folder_gui = new File(Environment.getExternalStorageDirectory() + File.separator + "GUI");
+            if(!folder_gui.exists()) {
+                folder_gui.mkdirs();
+                System.out.println("..........................................................................");
+                System.out.println(folder_gui.getAbsolutePath());
+                System.out.println(".............................................................................");
+            }
+          File outputFile = new File(folder_gui,"temp.jpg");
+            return outputFile;
+        }
+    }
+
+
+
     public void processImage(View view){
+
+        if(camera!=null){
+            camera.takePicture(null, null, mPictureCallback);
+        }
         String OCRresult = null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
