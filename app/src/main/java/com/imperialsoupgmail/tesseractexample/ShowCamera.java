@@ -66,16 +66,17 @@ public class ShowCamera extends SurfaceView implements SurfaceHolder.Callback {
         System.out.println(sizes);
         System.out.println("..............................................................................");
         for(Camera.Size size : sizes) {
-                if (mSize==null) {
-                    mSize=size;
-                } else {
-                    int resultArea=mSize.width*mSize.height;
-                    int newArea=size.width*size.height;
-
-                    if (newArea>resultArea) {
-                        mSize=size;
-                    }
-                }
+            mSize = size;
+//                if (mSize==null) {
+//                    mSize=size;
+//                } else {
+//                    int resultArea=mSize.width*mSize.height;
+//                    int newArea=size.width*size.height;
+//
+//                    if (newArea>resultArea) {
+//                        mSize=size;
+//                    }
+//                }
         }
 
 
@@ -91,7 +92,7 @@ public class ShowCamera extends SurfaceView implements SurfaceHolder.Callback {
             params.setRotation(0);
         }
 
-        //params.setPictureSize(mSize.width,mSize.height);
+        params.setPictureSize(mSize.width,mSize.height);
         camera.setParameters(params);
         try {
             camera.setPreviewDisplay(holder);
