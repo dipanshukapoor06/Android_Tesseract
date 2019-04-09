@@ -7,7 +7,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +31,14 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
+
 public class MainActivity extends AppCompatActivity {
+
+    private static final String API_KEY = "AIzaSyAciGgT488kBFgbMDIcbyTPaFtw-uIHrk8";
+
 
     Bitmap image;
     private TessBaseAPI mTess;
@@ -65,41 +74,63 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("Picture File..................................");
             System.out.println(picture_file);
 
-            if(picture_file == null) {
+            if (picture_file == null) {
                 return;
-            }
-            else {
+            } else {
                 try {
                     FileOutputStream fos = new FileOutputStream(picture_file);
                     fos.write(data);
                     fos.close();
 
                     camera.startPreview();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
             image = BitmapFactory.decodeFile(currentPhotoPath);
+            //image = BitmapFactory.decodeResource(getResources(), R.drawable.img_tamil);
 
             String language = "tam";
-            datapath = getFilesDir()+ "/tesseract/";
+            datapath = getFilesDir() + "/tesseract/";
             mTess = new TessBaseAPI();
 
             // checkFile(new File(datapath + "tessdata/"));
 
             mTess.init(datapath, language);
-            image = rotateImage(image,90);
+            image = rotateImage(image, 90);
             String OCRresult = null;
             mTess.setImage(image);
             OCRresult = mTess.getUTF8Text();
             System.out.println("Result......................    " + OCRresult);
-            Toast.makeText(getBaseContext(),OCRresult, Toast.LENGTH_SHORT).show();
+            final Handler textViewHandler = new Handler();
+            final String finalOCRresult = OCRresult;
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    TranslateOptions options = TranslateOptions.newBuilder()
+                            .setApiKey(API_KEY)
+                            .build();
+                    Translate translate = options.getService();
+                    final Translation translation =
+                            translate.translate(finalOCRresult,
+                                    Translate.TranslateOption.targetLanguage("en"));
+                    textViewHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), translation.getTranslatedText(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return null;
+                }
+            }.execute();
+
             //TextView OCRTextView = (TextView) findViewById(R.id.OCRTextView);
             // OCRTextView.setText(OCRresult);
         }
+
     };
+
 
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
